@@ -101,6 +101,14 @@ class ApplicationTest extends \Test\TestCase {
 		$this->assertArrayHasKey("share_link_access", $hooks["OCP\Share"]);
 	}
 
+	private function countListeners($name) {
+		$listeners = $this->app->getContainer()->getServer()->getEventDispatcher()->getListeners();
+		if (array_key_exists($name, $listeners)) {
+			return count($listeners[$name]);
+		}
+		return 0;
+	}
+
 	/**
 	 * Ensure that hook is not registered for viewer scripts if disallowed
 	 */
@@ -117,12 +125,12 @@ class ApplicationTest extends \Test\TestCase {
 	 * Ensure viewer scripts are not registered for non-authenticated user
 	 */
 	public function testRegisterForUserAuthUnauthenticated() {
-		$listenersBefore = $this->app->getContainer()->getServer()->getEventDispatcher()->getListeners()['OCA\Files::loadAdditionalScripts'];
+		$listenersBefore = $this->countListeners('OCA\Files::loadAdditionalScripts');
 
 		$this->app->registerScripts();
 
-		$listenersAfter = $this->app->getContainer()->getServer()->getEventDispatcher()->getListeners()['OCA\Files::loadAdditionalScripts'];
-		$this->assertCount(count($listenersBefore), $listenersAfter);
+		$listenersAfter = $this->countListeners('OCA\Files::loadAdditionalScripts');
+		$this->assertEquals($listenersAfter, $listenersBefore);
 	}
 
 	/**
@@ -130,12 +138,12 @@ class ApplicationTest extends \Test\TestCase {
 	 */
 	public function testRegisterForUserAuthAllowed() {
 		$this->setUpUser(false);
-		$listenersBefore = $this->app->getContainer()->getServer()->getEventDispatcher()->getListeners()['OCA\Files::loadAdditionalScripts'];
+		$listenersBefore = $this->countListeners('OCA\Files::loadAdditionalScripts');
 
 		$this->app->registerScripts();
 
-		$listenersAfter = $this->app->getContainer()->getServer()->getEventDispatcher()->getListeners()['OCA\Files::loadAdditionalScripts'];
-		$this->assertCount(count($listenersBefore)+1, $listenersAfter);
+		$listenersAfter = $this->countListeners('OCA\Files::loadAdditionalScripts');
+		$this->assertEquals($listenersAfter, $listenersBefore + 1);
 
 		$this->tearDownUser();
 	}

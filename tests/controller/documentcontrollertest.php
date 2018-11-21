@@ -11,60 +11,81 @@
 
 namespace OCA\Richdocuments\Controller;
 
+use \OCP\IRequest;
+use \OCP\IConfig;
+use \OCA\Richdocuments\AppConfig;
+use \OCP\IL10N;
+use \OCP\ICacheFactory;
+use \OCP\ILogger;
+use \OCA\Richdocuments\Storage;
+
 class DocumentControllerTest extends \PHPUnit_Framework_TestCase {
-	private $appName = 'richdocuments';
+
+	/**
+	 * @var IRequest
+	 */
 	private $request;
-	private $l10n;
+	/**
+	 * @var IConfig
+	 */
 	private $settings;
+	/**
+	 * @var AppConfig
+	 */
+	private $appConfig;
+	/**
+	 * @var IL10N
+	 */
+	private $l10n;
+	/**
+	 * @var ICacheFactory
+	 */
 	private $cache;
+	/**
+	 * @var ILogger
+	 */
 	private $logger;
-	private $uid = 'jack_the_documents_tester';
-	private $password = 'password';
-	private $controller;
+
+	/**
+	 * @var Storage
+	 */
+	private $storage;
 
 	public function setUp(){
-		$this->request = $this->getMockBuilder('\OCP\IRequest')
+		$this->request = $this->getMockBuilder(IRequest::class)
 			->disableOriginalConstructor()
-			->getMock()
-		;
-		$this->settings = $this->getMockBuilder('\OCP\IConfig')
+			->getMock();
+		$this->settings = $this->getMockBuilder(IConfig::class)
 			->disableOriginalConstructor()
-			->getMock()
-		;
-		$this->appConfig = $this->getMockBuilder('\OCA\Richdocuments\AppConfig')
+			->getMock();
+		$this->appConfig = $this->getMockBuilder(AppConfig::class)
 			->disableOriginalConstructor()
-			->getMock()
-		;
-		$this->l10n = $this->getMockBuilder('\OCP\IL10N')
+			->getMock();
+		$this->l10n = $this->getMockBuilder(IL10N::class)
 			->disableOriginalConstructor()
-			->getMock()
-		;
-		$this->cache = $this->getMockBuilder('\OCP\ICacheFactory')
+			->getMock();
+		$this->cache = $this->getMockBuilder(ICacheFactory::class)
 			->disableOriginalConstructor()
-			->getMock()
-		;
-		$this->logger = $this->getMockBuilder('\OCP\ILogger')
+			->getMock();
+		$this->logger = $this->getMockBuilder(ILogger::class)
 			->disableOriginalConstructor()
-			->getMock()
-		;
-		$this->controller = new DocumentController(
-			$this->appName,
+			->getMock();
+		$this->storage = $this->getMockBuilder(Storage::class)
+			->disableOriginalConstructor()
+			->getMock();
+	}
+
+	public function testConstructor() {
+		$documentController = new DocumentController(
+			'richdocuments',
 			$this->request,
 			$this->settings,
 			$this->appConfig,
 			$this->l10n,
-			$this->uid,
+			'test',
 			$this->cache,
-			$this->logger
+			$this->logger,
+			$this->storage
 		);
-
-		$userManager = \OC::$server->getUserManager();
-		$userSession = \OC::$server->getUserSession();
-		if (!$userManager->userExists($this->uid)){
-			$userManager->createUser($this->uid, $this->password);
-			\OC::$server->getUserFolder($this->uid);
-		}
-		$userSession->login($this->uid, $this->password);
-		\OC_Util::setupFS();
 	}
 }
